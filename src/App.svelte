@@ -1,30 +1,46 @@
 <script>
-	export let name;
+import { parser } from './bem.js'
+
+let html = ''
+$: result = parser(html)
 </script>
 
 <main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+  <div class="container">
+    <div class="grid">
+      <div class="col col-6">
+        <textarea
+          class="source"
+          bind:value={ html }
+          placeholder="Введите или вставьте HTML код"
+        ></textarea>
+      </div>
+      <div class="col col-6 h-100">
+        <pre class="result">{ result.message }</pre>
+      </div>
+    </div>
+  </div>
 </main>
 
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+  .container {
+    height: 100vh;
+  }
+  .grid {
+    height: 100%;
+  }
+  .col {
+    height: 100%;
+    position: relative;
+  }
+  textarea {
+    resize: none;
+  }
+  .source {
+    width: 100%;
+    height: 100%;
+  }
+  .h-100 {
+    height: 100%;
+  }
 </style>

@@ -1,7 +1,10 @@
 const parser = (html) => {
+  if (html === '') return { ok: false, message: 'Ничего не введено' }
+
   let json = []
 
   const parser = html.match(/class=".*?"/g)
+  if (parser === null) return { ok: false, message: 'Пока нет классов' }
   const structure = parser.map(el => {
     const rg = /class="|"/g
     if (el.includes(' ')) return el.replace(rg, '').split(' ')
@@ -47,9 +50,9 @@ const parser = (html) => {
     }
   })
 
-  return JSON.stringify(json, null, 2)
+  return { ok: false, message: 'Результат', json }
 }
 
-export default{
+export {
   parser
 }
