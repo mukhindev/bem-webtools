@@ -1,6 +1,8 @@
 {
-  "name": "svelte-app",
-  "version": "1.0.0",
+  "name": "bem-webtools",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Sergey Mukhin",
   "scripts": {
     "dev": "rollup -c -w",
     "build": "rollup -c",

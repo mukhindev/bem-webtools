@@ -1,7 +1,8 @@
 const parser = (html) => {
   if (html === '') return { ok: false, message: 'Ничего не введено' }
 
-  let json = []
+  let bem = []
+  let notbem = []
 
   const parser = html.match(/class=".*?"/g)
   if (parser === null) return { ok: false, message: 'Пока нет классов' }
@@ -15,7 +16,7 @@ const parser = (html) => {
   // Блоки
   classes.forEach(el => {
     const rgBlock = /__|_/
-    if (!rgBlock.test(el)) json.push({ block: el, elems: [], mods: [] })
+    if (!rgBlock.test(el)) bem.push({ block: el, elems: [], mods: [] })
   })
 
   // Модификаторы блоков
@@ -23,7 +24,11 @@ const parser = (html) => {
     const rgBlockMod = /-[a-z]+_{1}[a-z]|^[a-z]+_{1}[a-z]/
     if (rgBlockMod.test(el)) {
       const blockName = el.replace(/_.+/, '')
-      const block = json.find(el => el.block === blockName)
+      const block = bem.find(el => el.block === blockName)
+      if (!block) {
+        notbem.push(el)
+        return
+      }
       block.mods.push(el)
     }
   })
@@ -33,7 +38,11 @@ const parser = (html) => {
     const rgElem = /__[a-z-]+$/
     if (rgElem.test(el)) {
       const blockName = el.replace(/__.+/, '')
-      const block = json.find(el => el.block === blockName)
+      const block = bem.find(el => el.block === blockName)
+      if (!block) {
+        notbem.push(el)
+        return
+      }
       block.elems.push({ elem: el, mods: [] })
     } 
   })
@@ -44,13 +53,21 @@ const parser = (html) => {
     if (rgElemMod.test(el)) {
       const blockName = el.replace(/_.+/, '')
       const elemName = el.replace(/_[a-z]+$|_[a-z]+_[a-z]+$/, '')
-      const block = json.find(el => el.block === blockName)
+      const block = bem.find(el => el.block === blockName)
+      if (!block) {
+        notbem.push(el)
+        return
+      }
       const elem = block.elems.find(el => el.elem === elemName)
+      if (!elem) {
+        notbem.push(el)
+        return
+      }
       elem.mods.push(el)
     }
   })
 
-  return { ok: false, message: 'Результат', json }
+  return { ok: true, message: 'Результат', bem, notbem }
 }
 
 export {

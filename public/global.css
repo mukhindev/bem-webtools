@@ -1,9 +1,14 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap&subset=cyrillic');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 
 html {
   font-size: 15px;
   font-weight: normal;
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Roboto', sans-serif;
+}
+
+pre {
+  font-family: 'Roboto Mono', monospace;
 }
 
 body {
@@ -54,7 +59,7 @@ i {
 }
 
 .container {
-  padding: 4rem;
+  padding: 0rem;
   margin: auto;
   max-width: 1280px;
 }
