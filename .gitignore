@@ -1,5 +1,6 @@
-/node_modules/
-/public/build/
-
 .DS_Store
+node_modules
+dist
 publish.sh
+*.env
+public/metrika.html

@@ -1,0 +1,23 @@
+{
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": "entity.name.tag.pug",
+        "settings": {
+          "foreground": "#D16969"
+        }
+      },
+      {
+        "scope": "entity.other.attribute-name.class.pug",
+        "settings": {
+          "foreground": "#4EC9B0"
+        }
+      }
+    ]
+  },
+  "liveServer.settings.port": 5501
+}
+
+// #D16969
+// #DCDCAA
+// #4EC9B0

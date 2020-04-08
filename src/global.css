@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap&subset=cyrillic');
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 
+* {
+  box-sizing: border-box;
+}
+
 html {
   font-size: 15px;
   font-weight: normal;
   font-family: 'Roboto', sans-serif;
-}
-
-pre {
-  font-family: 'Roboto Mono', monospace;
 }
 
 body {
@@ -21,47 +21,30 @@ body {
 	line-height: 1.2;
 }
 
-* {
-  box-sizing: border-box;
+pre {
+  font-family: 'Roboto Mono', monospace;
 }
 
 h1 {
-  margin-top: 0;
-  margin-bottom: 3rem;
+  margin: 0;
   font-size: 3rem;
   font-weight: bold;
-  width: 100%;
 }
 
 h2 {
-  margin-top: 0;
-  margin-bottom: 2rem;
+  margin: 0;
   font-size: 2rem;
   font-weight: bold;
-  width: 100%;
 }
 
 a {
   color: #008A25;
 }
 
-.text-white {
-  color: white;
-}
-
-.text-center {
-  text-align: center;
-}
-
-i {
-  font-size: 1.5rem;
-  color: #008A25;
-}
-
 .container {
-  padding: 0rem;
-  margin: auto;
   max-width: 1280px;
+  margin: auto;
+  padding: 0rem;
 }
 
 .card {
@@ -75,18 +58,6 @@ i {
   grid-gap: 1rem;
 }
 
-.col-2 {
-  grid-column: span 2;
-}
-
-.col-3 {
-  grid-column: span 3;
-}
-
-.col-4 {
-  grid-column: span 4;
-}
-
 .col-6 {
   grid-column: span 6;
 }
@@ -95,36 +66,8 @@ i {
   grid-column: span 12;
 }
 
-.flex {
-  display: flex;
-}
-
-.ml-1 {
-  margin-left: 1rem;
-}
-
-.ml-2 {
-  margin-left: 2rem;
-}
-
-.ml-3 {
-  margin-left: 3rem;
-}
-
-.mr-1 {
-  margin-right: 1rem;
-}
-
 .mr-05 {
   margin-right: 0.5rem;
-}
-
-.mt-2 {
-  margin-top: 2rem;
-}
-
-.mb-05 {
-  margin-bottom: 0.5rem;
 }
 
 .mb-2 {
@@ -143,14 +86,6 @@ i {
   .lg-6 {
     grid-column: span 6
   }
-
-  .lg-4 {
-    grid-column: span 4
-  }
-
-  .lg-3 {
-    grid-column: span 3
-  }
 }
 
 @media screen and (max-width: 768px) {
@@ -161,17 +96,13 @@ i {
   .md-6 {
     grid-column: span 6
   }
-
-  .md-4 {
-    grid-column: span 4
-  }
-
-  .md-3 {
-    grid-column: span 3
-  }
 }
 
 @media screen and (max-width: 576px) {
+  .container {
+    padding: 2rem 2rem;
+  }
+
   .sm-12 {
     grid-column: span 12
   }
@@ -179,20 +110,4 @@ i {
   .sm-6 {
     grid-column: span 6
   }
-
-  .container {
-    padding: 2rem 2rem;
-  }
 }
-
-/*
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #000;
-    color: #FFF;
-  }
-
-  a, i {
-    color: #9ADAFC;
-  }
-}*/
