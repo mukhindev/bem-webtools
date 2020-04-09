@@ -1,11 +1,19 @@
 const parser = (html) => {
-  if (html === '') return { ok: false, message: 'Ничего не введено' }
+  if (html === '') return {
+    ok: false, 
+    errors: [{ class: null, message: 'Нет кода' }],
+    bem: null
+  }
 
-  let bem = []
-  let notbem = []
+  let bem = { blocks: [] }
+  let errors = []
 
   const parser = html.match(/class=".*?"/g)
-  if (parser === null) return { ok: false, message: 'Пока нет классов' }
+  if (parser === null) return {
+    ok: false, 
+    errors: [{ class: null, message: 'Не найдено классов' }],
+    bem: null
+  }
   const structure = parser.map(el => {
     const rg = /class="|"/g
     if (el.includes(' ')) return el.replace(rg, '').split(' ')
@@ -13,61 +21,78 @@ const parser = (html) => {
   }).flat()
   const classes = new Set(structure)
 
-  // Блоки
+  // БЛОКИ
   classes.forEach(el => {
     const rgBlock = /__|_/
-    if (!rgBlock.test(el)) bem.push({ block: el, elems: [], mods: [] })
+    if (!rgBlock.test(el)) bem.blocks.push({
+      class: el,
+      folder: el,
+      file: `${el}.css`,
+      elements: [],
+      mods: [],
+      imports: []
+    })
   })
 
-  // Модификаторы блоков
+  // МОДИФИКАТОРЫ БЛОКОВ
   classes.forEach(el => {
     const rgBlockMod = /-[a-z]+_{1}[a-z]|^[a-z]+_{1}[a-z]/
     if (rgBlockMod.test(el)) {
       const blockName = el.replace(/_.+/, '')
-      const block = bem.find(el => el.block === blockName)
+      const block = bem.blocks.find(el => el.folder === blockName)
       if (!block) {
-        notbem.push(el)
+        errors.push({ class: el, message: 'Не найден блок' })
         return
       }
-      block.mods.push(el)
+      const folder = `_${el.replace(/^.*?(__).*?_|^.*?_|_.*?$/g, '')}`
+      const file = `${el}.css`
+      block.mods.push({ class: el, folder, file })
+      block.imports.push(`@import './${folder}/${file}';`)
     }
   })
 
-  // Элементы
+  // ЭЛЕМЕНТЫ БЛОКОВ
   classes.forEach(el => {
     const rgElem = /__[a-z-]+$/
     if (rgElem.test(el)) {
       const blockName = el.replace(/__.+/, '')
-      const block = bem.find(el => el.block === blockName)
+      const block = bem.blocks.find(el => el.class === blockName)
       if (!block) {
-        notbem.push(el)
+        errors.push({ class: el, message: 'Не найден блок' })
         return
       }
-      block.elems.push({ elem: el, mods: [] })
+      const folder = `__${el.replace(/^.*?__/, '')}`
+      const file = `${el}.css`
+      block.elements.push({ class: el, folder, file, mods: [] })
+      block.imports.unshift(`@import './${folder}/${file}';`)
     } 
   })
 
-  // Модификаторы элементов
+  // МОДИФИКАТОРЫ ЭЛЕМЕНТОВ
   classes.forEach(el => {
     const rgElemMod = /__[a-z]+_/
     if (rgElemMod.test(el)) {
       const blockName = el.replace(/_.+/, '')
       const elemName = el.replace(/_[a-z]+$|_[a-z]+_[a-z]+$/, '')
-      const block = bem.find(el => el.block === blockName)
+      const block = bem.blocks.find(el => el.class === blockName)
       if (!block) {
-        notbem.push(el)
+        errors.push({ class: el, message: 'Не найден блок' })
         return
       }
-      const elem = block.elems.find(el => el.elem === elemName)
+      const elem = block.elements.find(el => el.class === elemName)
       if (!elem) {
-        notbem.push(el)
+        errors.push({ class: el, message: 'Не найден элемент' })
         return
       }
-      elem.mods.push(el)
+      const folder = `_${el.replace(/^.*?(__).*?_|^.*?_|_.*?$/g, '')}`
+      const file = `${el}.css`
+      const folderElem = elem.folder
+      elem.mods.push({ class: el, folder, file })
+      block.imports.push(`@import './${folderElem}/${folder}/${file}';`)
     }
   })
 
-  return { ok: true, message: 'Результат', bem, notbem }
+  return { ok: true, errors, bem }
 }
 
 export {

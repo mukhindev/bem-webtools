@@ -1,49 +1,63 @@
 <template lang="pug">
   main.bem
+
+    // РЕДАКТОР
     .bem-editor
-      textarea(
+      textarea.bem-editor__source(
         :value="html"
         @input="updateHtml"
-        class="bem-editor__source"
         spellcheck="false"
         placeholder="Введите или вставьте HTML код"
       )
-    .bem-scheme
-      .bem-scheme__error(v-if="result.ok && result.notbem.length > 0")
-        .bem-scheme__error-title Неверно используемые элементы и модификаторы &#9888;
-        .bem-scheme__notbam-item.item(
-          v-for="item in result.notbem"
-        ) {{ item }}
-      .bem-scheme__good(v-if="result.ok && result.bem.length > 0")
-        .bem-scheme__good-title Схема BEM nested
-        .bem-scheme__block-group(v-for="item in result.bem")
-          .bem-scheme__block-folder.item
+    
+    // СХЕМА BEM NESTED
+    .bem-scheme(v-if="blocks")
+
+      // БЛОКИ
+      .bem-scheme__block-group(v-for="block in blocks")
+        .bem-scheme__block-folder.item
+          i.fas.fa-folder-open(class="mr-05")
+          span {{ block.folder }}
+        .bem-scheme__block-file.item.pointer(@click="imports = block.imports")
+          i.fab.fa-css3(class="mr-05")
+          span {{ block.file }}
+
+        // МОДИФИКАТОРЫ БЛОКОВ
+        .bem-scheme__block-mod-group(v-for="mod, i in block.mods")
+          .bem-scheme__block-mod-folder.item(v-if="i === 0")
             i.fas.fa-folder-open(class="mr-05")
-            span {{ item.block }}
-          .bem-scheme__block-file.item
+            span {{ mod.folder }}
+          .bem-scheme__block-mod-file.item
             i.fab.fa-css3(class="mr-05")
-            span {{ item.block }}.css
-          .bem-scheme__block-mod-group(v-for="mod, i in item.mods")
-            .bem-scheme__block-mod-folder.item(v-if="i === 0")
+            span {{ mod.file }}
+
+        // ЕЛЕМЕНТЫ БЛОКОВ
+        .bem-scheme__element-group(v-for="element in block.elements")
+          .bem-scheme__element-folder.item
+            i.fas.fa-folder-open(class="mr-05")
+            span {{ element.folder }}
+          .bem-scheme__element-file.item
+            i.fab.fa-css3(class="mr-05")
+            span {{ element.file }}
+
+          // МОДИФИКАТОРЫ ЕЛЕМЕНТОВ
+          .bem-scheme__element-mod-group(v-for="mod, i in element.mods")
+            .bem-scheme__element-mod-folder.item(v-if="i === 0")
               i.fas.fa-folder-open(class="mr-05")
-              span _{{ mod | onlyModKey }}
-            .bem-scheme__block-mod-file.item
+              span {{ mod.folder }}
+            .bem-scheme__element-mod-file.item
               i.fab.fa-css3(class="mr-05")
-              span {{ mod }}.css
-          .bem-scheme__element-group(v-for="elem in item.elems")
-            .bem-scheme__element-folder.item
-              i.fas.fa-folder-open(class="mr-05")
-              span __{{ elem.elem | onlyElement }}
-            .bem-scheme__element-file.item
-              i.fab.fa-css3(class="mr-05")
-              span {{ elem.elem }}.css
-            .bem-scheme__element-mod-group(v-for="mod, i in elem.mods")
-              .bem-scheme__element-mod-folder.item(v-if="i === 0")
-                i.fas.fa-folder-open(class="mr-05")
-                span _{{ mod | onlyModKey }}
-              .bem-scheme__element-mod-file.item
-                i.fab.fa-css3(class="mr-05")
-                span {{ mod }}.css
+              span {{ mod.file }}
+    
+    // ОШИБКИ
+    pre.bem-logs
+      .bem-errors(v-if="errors")
+        .bem-errors__item(v-for="e in errors")
+          i.fas.fa-exclamation-triangle(class="mr-05")
+          span {{ e.message }}
+          span(v-if="e.class")  для класса "{{ e.class }}"
+      .bem-imports(v-if="blocks")
+        .bem-imports__item(v-for="item in imports") {{ item }}
 </template>
 
 <script>
@@ -52,48 +66,42 @@ import { parser } from '../modules/bem.js'
 export default {
   name: 'BemScheme',
   components: { },
+  data () {
+    return {
+      imports: ['// Выберете .css файл блока, чтобы увидеть импорты']
+    }
+  },
   computed: {
     html () {
       return this.$store.getters.html
     },
-    result () {
+    parser () {
       return parser(this.html)
+    },
+    errors () {
+      if (this.parser.errors.length > 0) return this.parser.errors
+      else return null
+    },
+    blocks () {
+      if (this.parser.bem === null) return null
+      else return this.parser.bem.blocks
     }
   },
   methods: {
     updateHtml (e) {
       this.$store.commit('updateHtml', e.target.value)
     }
-  },
-  filters: {
-    onlyElement: function (value) {
-      if (!value) return ''
-      return value.replace(/^.*?__/, '')
-    },
-    onlyModKey: function (value) {
-      if (!value) return ''
-      return value.replace(/^.*?(__).*?_|^.*?_|_.*?$/g, '')
-    }
   }
 }
 </script>
 
 <style>
-  .bem {
-    display: flex;
-    width: 100vw;
-    height: 100vh;
-  }
   .bem-editor {
-    width: 100%;
-    background-color: #222222;
-  }
-  .bem-scheme {
-    width: 25rem;
-    flex-shrink: 0;
-    background-color: #ffffff;
-    padding: 1rem;
-    overflow-y: scroll;
+    position: fixed;
+    top: 0;
+    bottom: 50%;
+    left: 0;
+    right: 25rem;
   }
   .bem-editor__source {
     width: 100%;
@@ -108,26 +116,15 @@ export default {
     white-space: pre;
     margin: 0;
   }
-  .bem-scheme__error {
-    border-bottom: 2px dashed rgb(190, 190, 190);
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding-bottom: 1rem;
-  }
-  .bem-scheme__good {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .bem-scheme__good-title {
-    color: #000000;
-    margin: 0 0 1rem;
-  }
-  .bem-scheme__error-title {
-    color: tomato;
-    margin: 0 0 1rem;
+  .bem-scheme {
+    overflow-y: scroll;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 25rem;
+    background-color: #ffffff;
+    padding: 1rem;
   }
   .bem-scheme__block-group {
     margin-bottom: 2rem;
@@ -173,11 +170,6 @@ export default {
     flex-direction: column;
     align-items: flex-start;
   }
-  .item {
-    padding: 0.25rem 0.5rem;
-    margin-bottom: 0.25rem;
-    border-radius: 4px;
-  }
   .bem-scheme__block-folder {
     color: #FFF;
     border: 1px solid #000000;
@@ -190,34 +182,59 @@ export default {
   }
   .bem-scheme__block-mod-folder {
     color: #000000;
-    border: 1px solid #000000;
+    border: 1px solid #D16969;
+    background-color: #D16969;
   }
   .bem-scheme__block-mod-file {
     margin-left: 1rem;
     color: #000000;
-    border: 1px dashed rgb(150, 150, 150);
+    border: 1px dashed #969696;
   }
   .bem-scheme__element-folder {
-    color: #FFF;
-    border: 1px solid #008A25;
-    background-color: #008A25;
+    color: rgb(0, 0, 0);
+    border: 1px solid #4EC9B0;
+    background-color: #4EC9B0;
   }
   .bem-scheme__element-file {
     margin-left: 1rem;
-    color: #008A25;
-    border: 1px dashed rgb(138, 190, 152);
+    color: #000000;
+    border: 1px dashed #969696;
   }
   .bem-scheme__element-mod-folder {
-    color: #008A25;
-    border: 1px solid #008A25;
+    color: #000000;
+    border: 1px solid #D7BA7D;
+    background-color: #D7BA7D;
   }
   .bem-scheme__element-mod-file {
     margin-left: 1rem;
-    color: #008A25;
-    border: 1px dashed rgb(138, 190, 152);
+    color: #000000;
+    border: 1px dashed #969696;
   }
-  .bem-scheme__notbam-item {
-    color: tomato;
-    border: 1px solid tomato;
+  .item {
+    padding: 0.25rem 0.5rem;
+    margin-bottom: 0.25rem;
+    border-radius: 4px;
+  }
+  .bem-logs {
+    overflow-y: scroll;
+    position: fixed;
+    margin: 0;
+    bottom: 0;
+    left: 0;
+    right: 25rem;
+    height: 50%;
+    background-color: #1E1E1E;
+    padding: 1rem;
+  }
+  .bem-errors {
+    margin-bottom: 1rem;
+  }
+  .bem-errors__item {
+    color: #D16969;
+    margin: 0.25rem;
+  }
+    .bem-imports__item {
+    color: #9CDCFE;
+    margin: 0.25rem;
   }
 </style>
