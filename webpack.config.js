@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const openInEditor = require('launch-editor-middleware')
 
 module.exports = {
   mode: 'development',
@@ -22,7 +23,10 @@ module.exports = {
   devServer: {
     contentBase: path.resolve(__dirname, 'public'),
     port: 8080,
-    historyApiFallback: true
+    historyApiFallback: true,
+    before (app) {
+      app.use('/__open-in-editor', openInEditor())
+    }
   },
   plugins: [
     new Dotenv(),
@@ -62,11 +66,6 @@ module.exports = {
         test: /\.pug$/, 
         loader: 'pug-loader',
         exclude: /node_modules|src/
-      },
-      { 
-        test: /\.graphql$/, 
-        loader: 'raw-loader',
-        exclude: /node_modules/
       }
     ]
   }
