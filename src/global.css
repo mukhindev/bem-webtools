@@ -21,14 +21,9 @@ body {
 	line-height: 1.2;
 }
 
-.pointer {
-  transition: box-shadow 0.25s;
-}
-
 .pointer:hover {
   cursor: pointer;
-  box-shadow: 0 4px -8px rgba(0, 0, 0, 0.15);
-  border: 1px solid;
+  text-decoration: underline;
 }
 
 pre {
