@@ -30,7 +30,8 @@ const parser = (html) => {
       file: `${el}.css`,
       elements: [],
       mods: [],
-      imports: []
+      imports: [],
+      folders: []
     })
   })
 
@@ -48,6 +49,7 @@ const parser = (html) => {
       const file = `${el}.css`
       block.mods.push({ class: el, folder, file })
       block.imports.push(`@import './${folder}/${file}';`)
+      block.folders.push(folder)
     }
   })
 
@@ -65,6 +67,7 @@ const parser = (html) => {
       const file = `${el}.css`
       block.elements.push({ class: el, folder, file, mods: [] })
       block.imports.unshift(`@import './${folder}/${file}';`)
+      block.folders.push(folder)
     } 
   })
 
@@ -89,6 +92,7 @@ const parser = (html) => {
       const folderElem = elem.folder
       elem.mods.push({ class: el, folder, file })
       block.imports.push(`@import './${folderElem}/${folder}/${file}';`)
+      block.folders.push(`${folderElem}/${folder}`)
     }
   })
 

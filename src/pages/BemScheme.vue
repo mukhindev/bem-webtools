@@ -3,19 +3,22 @@
 
     // РЕДАКТОР
     .bem-editor
+      .bem-editor__clear.item.pointer(@click="clearHtml")
+        i.fas.fa-trash-alt(class="mr-05")
+        span Очистить
       textarea.bem-editor__source(
         :value="html"
         @input="updateHtml"
         spellcheck="false"
         placeholder="Введите или вставьте HTML код"
       )
-    
+
     // СХЕМА BEM NESTED
     .bem-scheme(v-if="blocks")
-
+      
       // БЛОКИ
       .bem-scheme__block-group(v-for="block in blocks")
-        .bem-scheme__block-folder.item
+        .bem-scheme__block-folder.item.pointer(@click="imports = bash(block.class)")
           i.fas.fa-folder-open(class="mr-05")
           span {{ block.folder }}
         .bem-scheme__block-file.item.pointer(@click="imports = block.imports")
@@ -68,7 +71,10 @@ export default {
   components: { },
   data () {
     return {
-      imports: ['// Выберете .css файл блока, чтобы увидеть импорты']
+      imports: [
+        '// Выберете блок, чтобы узнать команды bash для создания папок',
+        '// Выберете .css файл блока, чтобы узнать импорты'
+      ]
     }
   },
   computed: {
@@ -85,11 +91,25 @@ export default {
     blocks () {
       if (this.parser.bem === null) return null
       else return this.parser.bem.blocks
+    },
+    bash () {
+      return function (block) {
+        if (this.parser.bem === null) return null
+        const folders = this.parser.bem.blocks.find(el => el.class === block).folders
+        if (folders.length > 0) return [`mkdir -p blocks/${block}/{${folders}}`]
+        if (folders.length === 0) return [`mkdir -p blocks/${block}`]
+      }
     }
   },
   methods: {
     updateHtml (e) {
       this.$store.commit('updateHtml', e.target.value)
+    },
+    clearHtml () {
+      this.$store.commit('updateHtml', '')
+    },
+    selectBlock (block) {
+      this.imports = this.bash(block)
     }
   }
 }
@@ -115,6 +135,15 @@ export default {
     padding: 1rem;
     white-space: pre;
     margin: 0;
+  }
+  .bem-editor__clear {
+    position: absolute;
+    z-index: 2;
+    top: 1rem;
+    right: 1.5rem;
+    background-color: #d8d8d8;
+    border: 1px solid #d8d8d8;
+    ;
   }
   .bem-scheme {
     overflow-y: scroll;
@@ -233,7 +262,7 @@ export default {
     color: #D16969;
     margin: 0.25rem;
   }
-    .bem-imports__item {
+  .bem-imports__item {
     color: #9CDCFE;
     margin: 0.25rem;
   }
