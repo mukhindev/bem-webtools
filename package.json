@@ -10,7 +10,7 @@
     "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "vue": "^2.6.12",
     "vue-router": "^3.4.8",
     "vuex": "^3.5.1"
